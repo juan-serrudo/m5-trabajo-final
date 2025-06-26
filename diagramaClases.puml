@@ -1,0 +1,87 @@
+@startuml
+
+' Entidades del dominio
+class Product {
+  - String id
+  - String name
+  - double price
+  - int stock
+  + getId(): String
+  + getName(): String
+  + getPrice(): double
+  + getStock(): int
+  + setStock(int): void
+}
+
+class OrderItem {
+  - Product product
+  - int quantity
+  + getSubtotal(): double
+}
+
+class Order {
+  - String id
+  - List<OrderItem> items
+  - LocalDateTime date
+  - OrderStatus status
+  + calculateTotal(): double
+  + getId(): String
+}
+
+enum OrderStatus {
+  PENDING
+  COMPLETED
+  CANCELLED
+}
+
+' Fábrica
+class ProductFactory {
+  + create(String, double, int): Product
+}
+
+' Singleton de Inventario
+class Inventory {
+  - Map<String, Product> products
+  - static Inventory instance
+  - Inventory()
+  + getInstance(): Inventory
+  + addProduct(Product): void
+  + getProduct(String): Product
+}
+
+' Strategy para notificaciones
+interface NotificationStrategy {
+  + send(String): void
+}
+
+class EmailNotification {
+  + send(String): void
+}
+
+class SMSNotification {
+  + send(String): void
+}
+
+' Observer
+interface OrderObserver {
+  + update(Order): void
+}
+
+class CustomerNotifier {
+  - NotificationStrategy strategy
+  + update(Order): void
+}
+
+' Relaciones
+ProductFactory --> Product
+Inventory --> Product
+Order --> OrderItem
+OrderItem --> Product
+Order --> OrderStatus
+
+NotificationStrategy <|.. EmailNotification
+NotificationStrategy <|.. SMSNotification
+OrderObserver <|.. CustomerNotifier
+CustomerNotifier --> NotificationStrategy
+
+@enduml
