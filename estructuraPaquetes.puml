@@ -1,0 +1,67 @@
+@startuml
+left to right direction
+
+package dominio {
+    package modelo {
+        class Producto
+        class Inventario
+        class OrdenCompra
+        class ItemOrden
+        class Usuario
+        enum EstadoOrden
+    }
+    package repositorio {
+        interface RepositorioProducto
+        interface RepositorioOrdenCompra
+    }
+    package servicio {
+        class ServicioDominioGenerico
+    }
+}
+
+package aplicacion {
+    package servicio {
+        class ServicioGestionProducto
+        class ServicioProcesarOrden
+        class ServicioGenerarReporte
+    }
+    package dto {
+        class ProductoDTO
+        class OrdenCompraDTO
+    }
+}
+
+package infraestructura {
+    package persistencia {
+        class RepositorioProductoMemoria
+        class RepositorioOrdenCompraMemoria
+    }
+    package notificacion {
+        class NotificacionEmail
+        class NotificacionWhatsApp
+        class NotificacionTelegram
+    }
+    package reporte {
+        class GeneradorReporteVentas
+    }
+}
+
+package compartido {
+    package excepcion {
+        class ExcepcionNegocio
+    }
+    package constante {
+        class MensajesSistema
+    }
+    package util {
+        class UtilidadesGenerales
+    }
+}
+
+dominio.repositorio <|.. infraestructura.persistencia
+aplicacion.servicio --> dominio.repositorio
+aplicacion.servicio --> dominio.modelo
+infraestructura.notificacion --> dominio.servicio
+aplicacion.dto --> dominio.modelo
+
+@enduml

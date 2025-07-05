@@ -1,0 +1,35 @@
+@startuml
+left to right direction
+
+package "Dominio" {
+    class Producto
+    class OrdenCompra
+    interface RepositorioProducto
+    interface ServicioNotificacion
+}
+
+package "Aplicacion" {
+    class ServicioGestionProducto
+    class ServicioProcesarOrden
+    class GeneradorReporteVentas
+}
+
+package "Infraestructura" {
+    class RepositorioProductoMemoria
+    class NotificacionEmail
+    class NotificacionWhatsApp
+    class NotificacionTelegram
+}
+
+package "Compartido" {
+    class ExcepcionNegocio
+    class MensajesSistema
+}
+
+RepositorioProducto <|.. RepositorioProductoMemoria
+ServicioGestionProducto --> RepositorioProducto
+ServicioProcesarOrden --> RepositorioProducto
+ServicioProcesarOrden --> ServicioNotificacion
+ServicioNotificacion <|.. NotificacionEmail
+ServicioNotificacion <|.. NotificacionSMS
+@enduml

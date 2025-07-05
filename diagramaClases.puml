@@ -1,87 +1,116 @@
 @startuml
+left to right direction
 
-' Entidades del dominio
-class Product {
-  - String id
-  - String name
-  - double price
-  - int stock
-  + getId(): String
-  + getName(): String
-  + getPrice(): double
-  + getStock(): int
-  + setStock(int): void
+' ==== ENTIDADES DEL DOMINIO ====
+class Producto {
+    - id : String
+    - nombre : String
+    - descripcion : String
+    - precio : double
+    - stock : int
 }
 
-class OrderItem {
-  - Product product
-  - int quantity
-  + getSubtotal(): double
+class Inventario {
+    - productos : List<Producto>
+    + agregarProducto(p : Producto)
+    + verificarStock(id : String, cantidad : int) : boolean
+    + actualizarStock(id : String, cantidad : int)
 }
 
-class Order {
-  - String id
-  - List<OrderItem> items
-  - LocalDateTime date
-  - OrderStatus status
-  + calculateTotal(): double
-  + getId(): String
+class Usuario {
+    - id : String
+    - nombre : String
+    - email : String
+    - celular : String
 }
 
-enum OrderStatus {
-  PENDING
-  COMPLETED
-  CANCELLED
+class OrdenCompra {
+    - id : String
+    - usuario : Usuario
+    - items : List<ItemOrden>
+    - fecha : LocalDateTime
+    - estado : EstadoOrden
+    + calcularTotal() : double
+    + cambiarEstado(nuevoEstado : EstadoOrden)
 }
 
-' Fábrica
-class ProductFactory {
-  + create(String, double, int): Product
+class ItemOrden {
+    - producto : Producto
+    - cantidad : int
+    + calcularSubtotal() : double
 }
 
-' Singleton de Inventario
-class Inventory {
-  - Map<String, Product> products
-  - static Inventory instance
-  - Inventory()
-  + getInstance(): Inventory
-  + addProduct(Product): void
-  + getProduct(String): Product
+enum EstadoOrden {
+    PENDIENTE
+    COMPLETADA
+    CANCELADA
 }
 
-' Strategy para notificaciones
-interface NotificationStrategy {
-  + send(String): void
+' ==== INTERFACES DE REPOSITORIO ====
+interface RepositorioProducto {
+    + guardar(p : Producto)
+    + obtenerPorId(id : String) : Producto
+    + listar() : List<Producto>
 }
 
-class EmailNotification {
-  + send(String): void
+interface RepositorioOrdenCompra {
+    + guardar(o : OrdenCompra)
+    + obtenerPorId(id : String) : OrdenCompra
+    + listarPorUsuario(usuarioId : String) : List<OrdenCompra>
 }
 
-class SMSNotification {
-  + send(String): void
+' ==== SERVICIOS DE APLICACION ====
+class ServicioGestionProducto {
+    + registrarProducto(nombre : String, descripcion : String, precio : double, stock : int)
+    + modificarProducto(id : String, nombre : String, descripcion : String, precio : double, stock : int)
+    + eliminarProducto(id : String)
+    + listarProductos() : List<Producto>
 }
 
-' Observer
-interface OrderObserver {
-  + update(Order): void
+class ServicioProcesarOrden {
+    + crearOrden(usuarioId : String, items : List<ItemOrden>)
+    + cancelarOrden(ordenId : String)
+    + consultarOrden(ordenId : String) : OrdenCompra
+    + obtenerTotalOrden(ordenId : String) : double
 }
 
-class CustomerNotifier {
-  - NotificationStrategy strategy
-  + update(Order): void
+class ServicioGenerarReporte {
+    + generarReportePorPeriodo(fechaInicio : LocalDate, fechaFin : LocalDate)
+    + obtenerProductosMasVendidos() : List<Producto>
 }
 
-' Relaciones
-ProductFactory --> Product
-Inventory --> Product
-Order --> OrderItem
-OrderItem --> Product
-Order --> OrderStatus
+' ==== NOTIFICACIONES ====
+interface EstrategiaNotificacion {
+    + enviar(mensaje : String, usuario : Usuario)
+}
 
-NotificationStrategy <|.. EmailNotification
-NotificationStrategy <|.. SMSNotification
-OrderObserver <|.. CustomerNotifier
-CustomerNotifier --> NotificationStrategy
+class NotificacionEmail {
+    + enviar(mensaje : String, usuario : Usuario)
+}
+
+class NotificacionWhatsApp {
+    + enviar(mensaje : String, usuario : Usuario)
+}
+
+class NotificacionTelegram {
+    + enviar(mensaje : String, usuario : Usuario)
+}
+
+' ==== RELACIONES ENTRE CLASES ====
+
+Inventario "1" --> "*" Producto
+OrdenCompra "1" --> "*" ItemOrden
+ItemOrden "*" --> "1" Producto
+OrdenCompra "*" --> "1" Usuario
+
+RepositorioProducto <|.. ServicioGestionProducto
+RepositorioProducto <|.. ServicioProcesarOrden
+RepositorioOrdenCompra <|.. ServicioProcesarOrden
+
+EstrategiaNotificacion <|.. NotificacionEmail
+EstrategiaNotificacion <|.. NotificacionWhatsApp
+EstrategiaNotificacion <|.. NotificacionTelegram
+
+ServicioProcesarOrden --> EstrategiaNotificacion
 
 @enduml
