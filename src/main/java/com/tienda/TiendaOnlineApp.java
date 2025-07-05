@@ -87,14 +87,14 @@ public class TiendaOnlineApp {
         new ItemOrden(producto2, 2));
 
     OrdenCompra orden1 = servicioOrden.crearOrden(usuario1.getId(), itemsOrden1);
-    System.out.println("Orden creada: ID " + orden1.getId() + " - Total: $" + orden1.getTotal());
+    System.out.println("Orden creada: ID " + orden1.getId() + " - Total: Bs" + orden1.getTotal());
 
     // Orden 2: Usuario 2 compra teclado
     List<ItemOrden> itemsOrden2 = Arrays.asList(
         new ItemOrden(producto3, 1));
 
     OrdenCompra orden2 = servicioOrden.crearOrden(usuario2.getId(), itemsOrden2);
-    System.out.println("Orden creada: ID " + orden2.getId() + " - Total: $" + orden2.getTotal());
+    System.out.println("Orden creada: ID " + orden2.getId() + " - Total: Bs" + orden2.getTotal());
 
     System.out.println("\n4. PROCESANDO ÓRDENES...");
 
@@ -119,7 +119,7 @@ public class TiendaOnlineApp {
     List<OrdenCompra> historialUsuario1 = servicioUsuario.obtenerHistorialOrdenes(usuario1.getId());
     System.out.println("Historial de " + usuario1.getNombre() + ":");
     historialUsuario1
-        .forEach(o -> System.out.println("- Orden " + o.getId() + ": " + o.getEstado() + " - $" + o.getTotal()));
+        .forEach(o -> System.out.println("- Orden " + o.getId() + ": " + o.getEstado() + " - Bs" + o.getTotal()));
 
     System.out.println("\n=== DEMOSTRACIÓN COMPLETADA ===");
   }
