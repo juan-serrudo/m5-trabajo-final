@@ -6,6 +6,7 @@ import com.tienda.dominio.repositorio.RepositorioOrdenCompra;
 import com.tienda.dominio.repositorio.RepositorioProducto;
 import com.tienda.compartido.excepcion.ExcepcionNegocio;
 
+import java.math.BigDecimal;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.util.*;
@@ -36,10 +37,10 @@ public class ServicioGenerarReporte {
             throw new ExcepcionNegocio("La fecha de inicio no puede ser posterior a la fecha de fin");
         }
         
-        List<OrdenCompra> ordenes = repositorioOrdenCompra.listar()
+        List<OrdenCompra> ordenes = repositorioOrdenCompra.obtenerTodas()
                 .stream()
                 .filter(orden -> {
-                    LocalDate fechaOrden = orden.getFecha().toLocalDate();
+                    LocalDate fechaOrden = orden.getFechaCreacion().toLocalDate();
                     return !fechaOrden.isBefore(fechaInicio) && !fechaOrden.isAfter(fechaFin);
                 })
                 .collect(Collectors.toList());
@@ -59,7 +60,7 @@ public class ServicioGenerarReporte {
      * @return lista de productos ordenados por cantidad vendida
      */
     public List<Map<String, Object>> obtenerProductosMasVendidos() {
-        List<OrdenCompra> ordenes = repositorioOrdenCompra.listar();
+        List<OrdenCompra> ordenes = repositorioOrdenCompra.obtenerTodas();
         Map<String, Integer> ventasPorProducto = new HashMap<>();
         
         // Contar ventas por producto
@@ -80,11 +81,12 @@ public class ServicioGenerarReporte {
                     productoVenta.put("cantidadVendida", entry.getValue());
                     
                     // Obtener información del producto
-                    repositorioProducto.obtenerPorId(entry.getKey())
+                    UUID productoId = UUID.fromString(entry.getKey());
+                    repositorioProducto.buscarPorId(productoId)
                             .ifPresent(producto -> {
                                 productoVenta.put("nombreProducto", producto.getNombre());
                                 productoVenta.put("precioUnitario", producto.getPrecio());
-                                productoVenta.put("totalVentas", producto.getPrecio() * entry.getValue());
+                                productoVenta.put("totalVentas", producto.getPrecio().multiply(BigDecimal.valueOf(entry.getValue())));
                             });
                     
                     return productoVenta;
@@ -99,7 +101,7 @@ public class ServicioGenerarReporte {
      */
     private double calcularTotalVentas(List<OrdenCompra> ordenes) {
         return ordenes.stream()
-                .mapToDouble(OrdenCompra::calcularTotal)
+                .mapToDouble(orden -> orden.getTotal().doubleValue())
                 .sum();
     }
     
@@ -108,14 +110,14 @@ public class ServicioGenerarReporte {
      * @return mapa con información del inventario
      */
     public Map<String, Object> generarReporteInventario() {
-        List<Producto> productos = repositorioProducto.listar();
+        List<Producto> productos = repositorioProducto.obtenerTodos();
         
         Map<String, Object> reporte = new HashMap<>();
         reporte.put("totalProductos", productos.size());
         reporte.put("productosActivos", productos.stream().filter(Producto::isActivo).count());
         reporte.put("productosSinStock", productos.stream().filter(p -> p.getStockDisponible() == 0).count());
         reporte.put("valorTotalInventario", productos.stream()
-                .mapToDouble(p -> p.getPrecio() * p.getStockDisponible())
+                .mapToDouble(p -> p.getPrecio().multiply(BigDecimal.valueOf(p.getStockDisponible())).doubleValue())
                 .sum());
         reporte.put("productos", productos);
         

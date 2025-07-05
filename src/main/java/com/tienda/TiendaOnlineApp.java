@@ -70,16 +70,13 @@ public class TiendaOnlineApp {
 
     System.out.println("\n2. REGISTRANDO USUARIOS...");
     Usuario usuario1 = servicioUsuario.registrarUsuario(
-        "Juan Pérez", "juan.perez@email.com", "password123");
-    usuario1.setTelefono("+573001234567");
-    usuario1.setTelegramId("@juanperez");
-    repositorioUsuario.guardar(usuario1);
+        "Juan Serrudo", "juan.serrduo@gmail.com", "pass123");
+    servicioUsuario.actualizarUsuario(usuario1.getId(), usuario1.getNombre(), "+59172890159", "@juanserrudo");
     System.out.println("Usuario registrado: " + usuario1.getNombre());
 
     Usuario usuario2 = servicioUsuario.registrarUsuario(
-        "María García", "maria.garcia@email.com", "password456");
-    usuario2.setTelefono("+573007654321");
-    repositorioUsuario.guardar(usuario2);
+        "María García", "maria.garcia@gmail.com", "pass456");
+    servicioUsuario.actualizarUsuario(usuario2.getId(), usuario2.getNombre(), "+59172890158", null);
     System.out.println("Usuario registrado: " + usuario2.getNombre());
 
     System.out.println("\n3. CREANDO ÓRDENES DE COMPRA...");

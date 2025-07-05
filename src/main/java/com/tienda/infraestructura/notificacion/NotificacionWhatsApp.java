@@ -10,13 +10,13 @@ public class NotificacionWhatsApp implements EstrategiaNotificacion {
     
     @Override
     public boolean enviar(String mensaje, Usuario usuario) {
-        if (usuario.getCelular() == null || usuario.getCelular().trim().isEmpty()) {
-            System.out.println("❌ No se puede enviar WhatsApp: usuario sin celular válido");
+        if (usuario.getTelefono() == null || usuario.getTelefono().trim().isEmpty()) {
+            System.out.println("❌ No se puede enviar WhatsApp: usuario sin teléfono válido");
             return false;
         }
         
         // Simulación de envío de WhatsApp
-        System.out.println("📱 WHATSAPP enviado a: " + usuario.getCelular());
+        System.out.println("📱 WHATSAPP enviado a: " + usuario.getTelefono());
         System.out.println("   Destinatario: " + usuario.getNombre());
         System.out.println("   Mensaje: " + mensaje);
         System.out.println("   ---");
